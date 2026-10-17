@@ -1,4 +1,4 @@
-/** Timeline format produced by `strata extract`, and the simulation that plays it. */
+/** Timeline format produced by `git-cities extract`, and the simulation that plays it. */
 
 export const MODIFY = 0, ADD = 1, DELETE = 2, RENAME = 3;
 

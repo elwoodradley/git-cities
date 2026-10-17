@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from strata import renderer, server
+from git_cities import renderer, server
 
 TIMELINE = {
     "version": 1,

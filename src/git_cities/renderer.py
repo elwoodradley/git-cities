@@ -137,10 +137,10 @@ def render(
             page.on("pageerror", lambda e: errors.append(str(e)))
             page.goto(url)
             try:
-                page.wait_for_function("() => window.strata && (window.strata.ready || window.strata.error)", timeout=600_000)
+                page.wait_for_function("() => window.gitCities && (window.gitCities.ready || window.gitCities.error)", timeout=600_000)
             except Exception as e:
                 raise RenderError(f"viewer did not become ready: {e}; {errors}")
-            err = page.evaluate("() => window.strata.error")
+            err = page.evaluate("() => window.gitCities.error")
             if err:
                 raise RenderError(f"viewer failed: {err}")
             enc = subprocess.Popen(ffmpeg, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -154,7 +154,7 @@ def render(
             last_log = t0
             try:
                 for i in range(frames):
-                    page.evaluate("i => window.strata.frame(i)", i)
+                    page.evaluate("i => window.gitCities.frame(i)", i)
                     data = base64.b64decode(cdp.send("Page.captureScreenshot", shot)["data"])
                     enc.stdin.write(data)
                     if frames_dir:

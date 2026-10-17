@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from strata.extract import ADD, DELETE, MODIFY, RENAME, expand_rename, extract, _unquote
+from git_cities.extract import ADD, DELETE, MODIFY, RENAME, expand_rename, extract, _unquote
 
 
 def git(repo: Path, *args: str, **env: str) -> str:
@@ -161,7 +161,7 @@ def test_unquote() -> None:
 
 
 def test_not_a_repo(tmp_path: Path) -> None:
-    from strata.extract import ExtractError
+    from git_cities.extract import ExtractError
 
     with pytest.raises(ExtractError):
         extract(tmp_path)

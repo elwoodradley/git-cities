@@ -1,5 +1,5 @@
 [project]
-name = "strata"
+name = "git-cities"
 version = "0.1.0"
 description = "Git history time-lapse renderer: turn a repository's history into an animated 3D city."
 readme = "README.md"
@@ -11,14 +11,14 @@ dependencies = [
 ]
 
 [project.scripts]
-strata = "strata.cli:main"
+git-cities = "git_cities.cli:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/strata"]
+packages = ["src/git_cities"]
 
 [dependency-groups]
 dev = ["pytest>=8"]

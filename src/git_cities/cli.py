@@ -1,4 +1,4 @@
-"""`strata` command line interface."""
+"""`git-cities` command line interface."""
 
 from __future__ import annotations
 
@@ -57,7 +57,7 @@ def _apply(opts):
 
 
 @click.group()
-@click.version_option(package_name="strata")
+@click.version_option(package_name="git-cities")
 def main() -> None:
     """Turn a git repository's history into an animated 3D city."""
 

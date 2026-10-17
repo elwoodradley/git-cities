@@ -22,7 +22,7 @@ def static_dir() -> Path:
     if not (STATIC_DIR / "index.html").exists():
         raise ViewerNotBuilt(
             "the viewer has not been built: run `npm install && npm run build` in viewer/ "
-            "(or install strata from a release wheel)"
+            "(or install git-cities from a release wheel)"
         )
     return STATIC_DIR
 

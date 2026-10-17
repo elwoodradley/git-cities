@@ -1,4 +1,4 @@
-# strata
+# git-cities
 
 Turn a git repository's full history into an animated 3D city — live in the
 browser, or exported to a deterministic 1080p/4K 60 fps video.
@@ -16,7 +16,7 @@ browser, or exported to a deterministic 1080p/4K 60 fps video.
 - Handles **100k+ commits and 25k+ files** at 60 fps (one instanced draw call
   for every building, shader-level LOD, tiny files aggregated into blocks).
 
-Two parts: a Python CLI (`strata`) that extracts history with `git log` into a
+Two parts: a Python CLI (`git-cities`) that extracts history with `git log` into a
 compact JSON timeline, and a TypeScript + Three.js viewer that plays it.
 
 ## Install
@@ -25,21 +25,22 @@ Requirements: Python ≥ 3.11, [uv](https://docs.astral.sh/uv/), git, Node ≥ 2
 (to build the viewer), and for video export `ffmpeg` on `PATH`.
 
 ```sh
-git clone https://github.com/<you>/strata && cd strata
+git clone https://github.com/elwoodradley/git-cities && cd git-cities
 uv sync                                  # Python env + CLI
-(cd viewer && npm install && npm run build)   # builds the viewer into src/strata/static
-uv run playwright install chromium       # only needed for `strata render`
+(cd viewer && npm install && npm run build)   # builds the viewer into src/git_cities/static
+uv run playwright install chromium       # only needed for `git-cities render`
 ```
 
-Use `uv run strata …` from the checkout, or `uv tool install .` after building
-the viewer to get a global `strata` command.
+Use `uv run git-cities …` from the checkout, or `uv tool install .` after building
+the viewer to get a global `git-cities` command (which git also exposes as
+`git cities`).
 
 ## Usage
 
 ```sh
-strata extract <repo> -o timeline.json   # history → JSON
-strata serve   <repo>                    # extract + open the live viewer
-strata render  <repo> -o out.mp4 [--from 2015-01-01 --to 2016-01-01] \
+git-cities extract <repo> -o timeline.json   # history → JSON
+git-cities serve   <repo>                    # extract + open the live viewer
+git-cities render  <repo> -o out.mp4 [--from 2015-01-01 --to 2016-01-01] \
                [--resolution 4k] [--duration 60s] [--fps 60] [--theme crt]
 ```
 
@@ -58,7 +59,7 @@ projects.
 | `c` | toggle the auto camera |
 
 The viewer is also configurable through URL query parameters, which
-`strata serve` passes through when given (`--theme`), or which you can edit
+`git-cities serve` passes through when given (`--theme`), or which you can edit
 in the address bar:
 
 | Parameter | Default | Meaning |
@@ -74,7 +75,7 @@ in the address bar:
 ### Rendering video
 
 ```sh
-strata render <repo> -o history.mp4 --resolution 1080p --duration 90s
+git-cities render <repo> -o history.mp4 --resolution 1080p --duration 90s
 ```
 
 | Option | Default | Meaning |
@@ -109,7 +110,7 @@ merger.
 
 ## Timeline format
 
-`strata extract` writes one JSON object:
+`git-cities extract` writes one JSON object:
 
 ```jsonc
 {

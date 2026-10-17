@@ -1,11 +1,13 @@
 # Decisions
 
-A running log of design decisions made while building strata, with the reasoning.
+A running log of design decisions made while building git-cities, with the reasoning.
 
 ## Naming
 
-- **Kept the working name "strata".** Geological strata are layers of history
-  laid down over time, which is exactly what the city is. No better name came up.
+- **Renamed from the working name "strata" to "git-cities".** Both `strata` and
+  `git-strata` are taken on PyPI; `git-cities` was free on PyPI and GitHub and
+  says what it does. As a bonus, git runs any `git-<name>` executable on PATH as
+  a subcommand, so `git cities serve .` works once installed.
 
 ## Extractor
 
@@ -100,7 +102,7 @@ A running log of design decisions made while building strata, with the reasoning
 
 - **Playwright drives the real viewer** (`?render=1`) instead of a separate
   offline renderer, so the video is exactly what the live view shows. The page
-  exposes `window.strata.frame(i)`; each call advances the simulation by one
+  exposes `window.gitCities.frame(i)`; each call advances the simulation by one
   fixed step and renders synchronously.
 - **Determinism:** fixed `1/fps` step, seeded mulberry32 RNG for every effect,
   no `Date.now()`/`performance.now()` inputs in render mode, `document.fonts.ready`

@@ -15,7 +15,7 @@ interface Config {
   theme: string;
   /** Days of history per real second. */
   speed: number;
-  /** Headless render mode: no RAF loop, frames driven via window.strata. */
+  /** Headless render mode: no RAF loop, frames driven via window.gitCities. */
   render: boolean;
   from: number | null;
   to: number | null;
@@ -273,7 +273,7 @@ class App {
   }
 }
 
-/** Headless render API, used by `strata render` through Playwright. */
+/** Headless render API, used by `git-cities render` through Playwright. */
 interface RenderApi {
   ready: boolean;
   error: string | null;
@@ -283,14 +283,14 @@ interface RenderApi {
 }
 declare global {
   interface Window {
-    strata: RenderApi;
+    gitCities: RenderApi;
   }
 }
 
 async function boot(): Promise<void> {
   const cfg = readConfig();
   const api: RenderApi = { ready: false, error: null, frameCount: 0, frame: () => {} };
-  window.strata = api;
+  window.gitCities = api;
   try {
     const tl = await loadTimeline(cfg.timeline);
     const loading = document.getElementById("loading-text");
