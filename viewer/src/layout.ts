@@ -53,9 +53,15 @@ export interface LayoutOptions {
   padding: number;
   /** Gap between buildings as a fraction of the lot. */
   gap: number;
+  /** Max files per aggregate block. */
+  chunk: number;
+  /** A file is "tiny" (eligible for aggregation) below this many peak lines... */
+  tinyLines: number;
+  /** ...or this many days of life. */
+  tinyDays: number;
 }
 
-export const defaultLayoutOptions: LayoutOptions = { maxFilesPerDir: 48, padding: 1.2, gap: 0.18 };
+export const defaultLayoutOptions: LayoutOptions = { maxFilesPerDir: 64, padding: 1.2, gap: 0.18, chunk: 16, tinyLines: 40, tinyDays: 30 };
 
 interface Node {
   name: string;
@@ -231,17 +237,26 @@ export function computeLayout(tl: Timeline, stats: FileStats[], opts: LayoutOpti
 
     const items: Item[] = [];
     for (const d of node.dirs.values()) items.push({ w: d.weight, dir: d, ext: "", aggregate: false });
-    const files = [...node.files].sort((a, b) => b.w - a.w);
-    const keep = files.length > opts.maxFilesPerDir ? files.slice(0, opts.maxFilesPerDir - 1) : files;
+    // Only genuinely tiny files get aggregated, and only in crowded directories:
+    // blocks of up to `chunk` files each, grouped by extension so a block has one colour.
+    const tiny = (id: number) => stats[id].peak < opts.tinyLines || stats[id].died - stats[id].born < opts.tinyDays * DAY;
+    const crowded = node.files.length > opts.maxFilesPerDir;
+    const keep = crowded ? node.files.filter((f) => !tiny(f.id)) : node.files;
+    const rest = crowded ? node.files.filter((f) => tiny(f.id)) : [];
     for (const f of keep) items.push({ w: f.w, files: [f.id], ext: extOf(tl.files[f.id]), aggregate: false });
-    if (keep.length < files.length) {
-      const rest = files.slice(keep.length);
-      items.push({
-        w: rest.reduce((a, f) => a + f.w, 0),
-        files: rest.map((f) => f.id),
-        ext: extOf(tl.files[rest[0].id]),
-        aggregate: true,
-      });
+    if (rest.length) {
+      const byExt = new Map<string, typeof rest>();
+      for (const f of rest) {
+        const e = extOf(tl.files[f.id]);
+        if (!byExt.has(e)) byExt.set(e, []);
+        byExt.get(e)!.push(f);
+      }
+      for (const [ext, group] of byExt) {
+        for (let i = 0; i < group.length; i += opts.chunk) {
+          const part = group.slice(i, i + opts.chunk);
+          items.push({ w: part.reduce((a, f) => a + f.w, 0), files: part.map((f) => f.id), ext, aggregate: true });
+        }
+      }
     }
     const rects = squarify(items.map((i) => i.w), inner);
     items.forEach((item, i) => {

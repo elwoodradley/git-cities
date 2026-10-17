@@ -154,14 +154,16 @@ export class Drones {
       this.haloScale[i] = s;
       // Beam from drone to the building top, fading with heat.
       const o = i * 6;
-      if (active && h[i] > 0.05) {
+      const dx = p[i * 3] - this.beamTarget[i * 3], dz = p[i * 3 + 2] - this.beamTarget[i * 3 + 2];
+      const near = 1 - Math.min(1, Math.hypot(dx, dz) / 25);
+      if (active && h[i] > 0.05 && near > 0) {
         this.beamPos[o] = p[i * 3];
         this.beamPos[o + 1] = p[i * 3 + 1] + bob;
         this.beamPos[o + 2] = p[i * 3 + 2];
         this.beamPos[o + 3] = this.beamTarget[i * 3];
         this.beamPos[o + 4] = this.beamTarget[i * 3 + 1];
         this.beamPos[o + 5] = this.beamTarget[i * 3 + 2];
-        const c = this.colors[i], b = h[i];
+        const c = this.colors[i], b = h[i] * near;
         this.beamCol[o] = c.r * b;
         this.beamCol[o + 1] = c.g * b;
         this.beamCol[o + 2] = c.b * b;

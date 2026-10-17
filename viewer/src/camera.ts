@@ -24,9 +24,10 @@ export class AutoCamera {
   private accZ = 0;
   private accW = 0;
   private accR = 0;
+  private accD = 0;
   private angle = 0.8;
   private radius: number;
-  private elevation = 0.42;
+  private elevation = 0.55;
   private manualLeft = 0;
   private blend = 1; // 1 = fully auto
   auto = true;
@@ -38,7 +39,7 @@ export class AutoCamera {
     this.opts = {
       orbitSpeed: 0.045,
       manualTimeout: 8,
-      minRadius: Math.max(extent * 0.25, 30),
+      minRadius: Math.max(extent * 0.3, 40),
       maxRadius: extent * 1.4,
       ...opts,
     };
@@ -68,6 +69,7 @@ export class AutoCamera {
     this.accX += x * weight;
     this.accZ += z * weight;
     this.accW += weight;
+    this.accD += weight * Math.hypot(x - this.activityCentroid.x, z - this.activityCentroid.z);
   }
 
   private autoPose(pos: THREE.Vector3, target: THREE.Vector3): void {
@@ -87,12 +89,12 @@ export class AutoCamera {
       const kc = 1 - Math.exp(-0.9 * dt);
       this.activityCentroid.x += (cx - this.activityCentroid.x) * kc;
       this.activityCentroid.z += (cz - this.activityCentroid.z) * kc;
-      // Spread: distance of activity from the current centroid, smoothed.
-      const spread = Math.hypot(cx - this.activityCentroid.x, cz - this.activityCentroid.z);
+      // Spread: mean distance of this frame's activity from the centroid, smoothed.
+      const spread = this.accD / this.accW;
       this.accR += (spread - this.accR) * kc;
     }
-    this.accX = this.accZ = this.accW = 0;
-    const wanted = THREE.MathUtils.clamp(cityExtent * 0.35 + this.accR * 2.2, this.opts.minRadius, this.opts.maxRadius);
+    this.accX = this.accZ = this.accW = this.accD = 0;
+    const wanted = THREE.MathUtils.clamp(cityExtent * 0.3 + this.accR * 3.0, this.opts.minRadius, this.opts.maxRadius);
     const kr = 1 - Math.exp(-0.5 * dt);
     this.radius += (wanted - this.radius) * kr;
     const kf = 1 - Math.exp(-0.7 * dt);
@@ -100,7 +102,7 @@ export class AutoCamera {
     this.focus.z += (this.activityCentroid.z - this.focus.z) * kf;
     this.focus.y = 4;
     this.angle += this.opts.orbitSpeed * dt;
-    this.elevation = 0.42 + 0.08 * Math.sin(this.angle * 0.7);
+    this.elevation = 0.55 + 0.1 * Math.sin(this.angle * 0.7);
     this.autoPose(this.autoPos, this.autoTarget);
 
     if (!this.auto && this.controls) {

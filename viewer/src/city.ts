@@ -17,11 +17,11 @@ export interface CityOptions {
   easeRate: number;
 }
 
-export const defaultCityOptions: CityOptions = { heightScale: 0.55, softCap: 60, easeRate: 5 };
+export const defaultCityOptions: CityOptions = { heightScale: 0.55, softCap: 40, easeRate: 5 };
 
 export function linesToHeight(lines: number, o: CityOptions): number {
   const h = o.heightScale * Math.sqrt(lines);
-  return h > o.softCap ? o.softCap + (h - o.softCap) * 0.25 : h;
+  return h > o.softCap ? o.softCap + Math.sqrt(h - o.softCap) * 2 : h;
 }
 
 const vert = /* glsl */ `
