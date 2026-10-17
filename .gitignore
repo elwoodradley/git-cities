@@ -1,0 +1,11 @@
+.testrepos/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+node_modules/
+viewer/dist/
+src/strata/static/
+.strata-cache/
+*.mp4
+*.egg-info/
