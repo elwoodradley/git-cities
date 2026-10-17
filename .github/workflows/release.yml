@@ -9,22 +9,22 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Tag matches pyproject version
         run: |
           v=$(grep -m1 '^version' pyproject.toml | cut -d'"' -f2)
           test "v$v" = "${GITHUB_REF_NAME}" || { echo "tag ${GITHUB_REF_NAME} != pyproject version $v"; exit 1; }
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: viewer/package-lock.json
 
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v10.3.0
 
       - name: Build sdist and wheel (viewer bundled by the hatch hook)
         run: uv build
@@ -32,14 +32,14 @@ jobs:
       - name: Check the wheel contains the viewer
         run: unzip -l dist/*.whl | grep -q "git_cities/static/index.html"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: dist
           path: dist/
 
   publish:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment:
       name: pypi
       url: https://pypi.org/p/git-cities
@@ -47,7 +47,7 @@ jobs:
       id-token: write # trusted publishing
       contents: write # create the GitHub release
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: dist
           path: dist/
