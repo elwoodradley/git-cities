@@ -21,7 +21,7 @@
       body { font-family: var(--sans); color: var(--fg); -webkit-font-smoothing: antialiased; }
       #app { position: fixed; inset: 0; }
       canvas { display: block; }
-      .hud { position: fixed; pointer-events: none; z-index: 2; }
+      .hud { position: fixed; pointer-events: none; z-index: 2; zoom: var(--hud-scale, 1); }
       .hud * { pointer-events: auto; }
       #loading {
         position: fixed; inset: 0; display: grid; place-items: center; z-index: 10;
@@ -76,7 +76,7 @@
       #controls select option { background: #111; }
       .scrubwrap { flex: 1; display: flex; flex-direction: column; gap: 3px; }
       .scrubwrap .range { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--dim); }
-      body.render #controls, body.render #loading { display: none !important; }
+      body.render #controls, body.render #loading, body.render #hint { display: none !important; }
       #hint { bottom: 8px; left: 50%; transform: translateX(-50%); font-family: var(--mono); font-size: 10px; color: var(--dim); opacity: 0.6; letter-spacing: 0.08em; }
       @media (max-width: 720px) {
         #date { font-size: 34px; }

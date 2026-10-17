@@ -94,9 +94,9 @@ const crt: Theme = {
   authors: ["#9dff9d", "#e8ffb0", "#5cff8a", "#c2ffc2", "#7bffd6", "#b9ff5c", "#e0ffe0", "#4bffb0"].map((c) => new Color(c)),
   ambient: new Color("#0a3a1a"),
   key: new Color("#7dffa8"),
-  bloomStrength: 0.9,
-  bloomRadius: 0.4,
-  bloomThreshold: 0.55,
+  bloomStrength: 0.7,
+  bloomRadius: 0.35,
+  bloomThreshold: 0.7,
   crt: true,
   ui: { fg: "#b8ffc4", dim: "#3f9a5a", accent: "#7dffa8", panel: "rgba(2, 12, 5, 0.7)" },
 };

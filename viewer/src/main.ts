@@ -122,6 +122,8 @@ class App {
     );
     this.ui.applyTheme(this.theme);
     this.ui.setPlaying(this.playing);
+    // Keep the HUD the same relative size whatever the output resolution.
+    if (cfg.render) document.documentElement.style.setProperty("--hud-scale", String(h / 1080));
     this.applyThemeToScene();
 
     const start = cfg.from ?? tl.range[0];

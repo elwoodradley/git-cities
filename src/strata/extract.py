@@ -226,7 +226,8 @@ def extract(
         return i
 
     for n, c in enumerate(_parse_log(proc.stdout)):
-        key = c.email.lower() or c.author
+        # People change emails far more often than names; key on the name.
+        key = c.author.strip().lower() or c.email.lower()
         ai = author_ids.get(key)
         if ai is None:
             ai = len(authors)

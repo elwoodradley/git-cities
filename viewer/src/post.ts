@@ -39,7 +39,7 @@ const crtShader = {
       // Phosphor: push everything toward green.
       float lum = dot(col, vec3(0.3, 0.6, 0.1));
       vec3 phosphor = vec3(0.35, 1.0, 0.5) * lum;
-      col = mix(col, phosphor, 0.65 * uAmount);
+      col = mix(col, phosphor, 0.5 * uAmount);
       // Scanlines + subpixel mask.
       float scan = 0.82 + 0.18 * sin(uv.y * uResolution.y * 3.14159);
       float mask = 0.92 + 0.08 * sin(uv.x * uResolution.x * 3.14159 * 0.5);
