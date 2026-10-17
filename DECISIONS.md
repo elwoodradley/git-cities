@@ -118,6 +118,24 @@ A running log of design decisions made while building git-cities, with the reaso
 - **HUD scales with output height** (`zoom: height/1080`) so a 4K export has
   the same composition as 1080p rather than tiny text.
 
+## Packaging
+
+- **The compiled viewer ships inside the wheel and the sdist.** A hatch build
+  hook (`hatch_build.py`) runs `npm ci && npm run build` when building from a
+  git checkout and skips it when the output is newer than the sources. The
+  sdist carries both the viewer source and the built bundle, so building a
+  wheel from it needs no Node. Verified by building from the sdist with npm
+  removed from `PATH` and running the result under `uvx --isolated`.
+- **Editable installs don't hard-fail without npm**; they warn, and the CLI
+  explains how to build the viewer. Release builds do fail, so a wheel can
+  never ship without the viewer (CI also checks for it).
+- **Releases publish from a version tag through PyPI trusted publishing**, so
+  there is no long-lived API token in the repo or its secrets. The workflow
+  refuses to publish if the tag doesn't match `pyproject.toml`.
+- **Playwright stays a hard dependency** (~40 MB) rather than an extra. Making
+  `render` an optional extra would shave install size but turn "make me a
+  video" into a two-step install; revisit if people complain.
+
 ## Testing against real repositories
 
 Cloned bare and extracted/played end to end:

@@ -1,14 +1,32 @@
 [project]
 name = "git-cities"
 version = "0.1.0"
-description = "Git history time-lapse renderer: turn a repository's history into an animated 3D city."
+description = "Turn a git repository's history into an animated 3D neon city, live in the browser or exported to 4K video."
 readme = "README.md"
 license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.11"
+authors = [{ name = "elwoodradley" }]
+keywords = ["git", "visualization", "threejs", "gource", "history", "video"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Version Control :: Git",
+    "Topic :: Multimedia :: Graphics :: 3D Rendering",
+]
 dependencies = [
     "click>=8.1",
     "playwright>=1.45",
 ]
+
+[project.urls]
+Homepage = "https://github.com/elwoodradley/git-cities"
+Source = "https://github.com/elwoodradley/git-cities"
+Issues = "https://github.com/elwoodradley/git-cities/issues"
 
 [project.scripts]
 git-cities = "git_cities.cli:main"
@@ -17,8 +35,19 @@ git-cities = "git_cities.cli:main"
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.hatch.build.hooks.custom]
+path = "hatch_build.py"
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/git_cities"]
+# The compiled viewer is gitignored, so it must be listed as an artifact.
+artifacts = ["src/git_cities/static/**"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/git_cities", "tests", "viewer/src", "viewer/index.html", "viewer/package.json",
+           "viewer/package-lock.json", "viewer/tsconfig.json", "viewer/vite.config.ts",
+           "hatch_build.py", "README.md", "LICENSE", "DECISIONS.md"]
+artifacts = ["src/git_cities/static/**"]
 
 [dependency-groups]
 dev = ["pytest>=8"]

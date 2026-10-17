@@ -1,0 +1,60 @@
+name: Release
+
+# Push a tag like v0.1.0 to build and publish to PyPI.
+# One-time setup: on pypi.org add a "trusted publisher" for this repo
+# (workflow: release.yml, environment: pypi). No API tokens needed.
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tag matches pyproject version
+        run: |
+          v=$(grep -m1 '^version' pyproject.toml | cut -d'"' -f2)
+          test "v$v" = "${GITHUB_REF_NAME}" || { echo "tag ${GITHUB_REF_NAME} != pyproject version $v"; exit 1; }
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: viewer/package-lock.json
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Build sdist and wheel (viewer bundled by the hatch hook)
+        run: uv build
+
+      - name: Check the wheel contains the viewer
+        run: unzip -l dist/*.whl | grep -q "git_cities/static/index.html"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/git-cities
+    permissions:
+      id-token: write # trusted publishing
+      contents: write # create the GitHub release
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
+
+      - name: GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" --generate-notes

@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # the extractor tests build their own repos, but keep full history handy
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: viewer/package-lock.json
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: "Viewer: install, typecheck, unit tests"
+        working-directory: viewer
+        run: |
+          npm ci --no-audit --no-fund
+          npm run typecheck
+          npm test
+
+      - name: Python env (builds the viewer through the hatch hook)
+        run: uv sync
+
+      - name: Browser + ffmpeg for the end-to-end render test
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q ffmpeg
+          uv run playwright install --with-deps chromium
+
+      - name: Python tests
+        run: uv run pytest -v
+
+      - name: Build sdist and wheel
+        run: uv build
+
+      - name: Check the wheel contains the viewer
+        run: unzip -l dist/*.whl | grep -q "git_cities/static/index.html"

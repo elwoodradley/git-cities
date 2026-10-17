@@ -21,19 +21,36 @@ compact JSON timeline, and a TypeScript + Three.js viewer that plays it.
 
 ## Install
 
-Requirements: Python ≥ 3.11, [uv](https://docs.astral.sh/uv/), git, Node ≥ 20
-(to build the viewer), and for video export `ffmpeg` on `PATH`.
+You need [uv](https://docs.astral.sh/uv/) and git. Then, inside any repository:
+
+```sh
+uvx git-cities serve .
+```
+
+That's it: no Node, no build step. For a permanent `git-cities` command (which
+git also exposes as `git cities`):
+
+```sh
+uv tool install git-cities
+```
+
+Video export additionally needs `ffmpeg` on `PATH` and a browser for headless
+rendering: `uvx --from git-cities playwright install chromium`.
+
+Until the first PyPI release is out, install straight from GitHub instead (this
+builds the viewer, so it needs Node ≥ 20):
+
+```sh
+uvx --from git+https://github.com/elwoodradley/git-cities git-cities serve .
+```
+
+### From source
 
 ```sh
 git clone https://github.com/elwoodradley/git-cities && cd git-cities
-uv sync                                  # Python env + CLI
-(cd viewer && npm install && npm run build)   # builds the viewer into src/git_cities/static
-uv run playwright install chromium       # only needed for `git-cities render`
+uv sync                     # Python env + CLI; also builds the viewer (needs Node ≥ 20)
+uv run git-cities serve .
 ```
-
-Use `uv run git-cities …` from the checkout, or `uv tool install .` after building
-the viewer to get a global `git-cities` command (which git also exposes as
-`git cities`).
 
 ## Usage
 

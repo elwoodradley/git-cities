@@ -10,3 +10,4 @@ src/git_cities/static/
 *.mp4
 *.egg-info/
 viewer/public/timeline.json
+dist/
