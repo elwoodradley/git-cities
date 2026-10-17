@@ -108,9 +108,11 @@ def serve(repo: Path, port: int, no_open: bool, theme: str | None, linear: bool,
 @click.option("--theme", default="neon", show_default=True)
 @click.option("--crf", default=18, show_default=True, help="x264 quality (lower is better).")
 @click.option("--gpu/--no-gpu", default=True, help="Let the headless browser use the GPU (falls back to software).")
-@click.option("--frames-dir", type=click.Path(path_type=Path), default=None, help="Also keep PNG frames here.")
+@click.option("--capture", type=click.Choice(["jpeg", "png"]), default="jpeg", show_default=True, help="Frame capture format: jpeg is ~6x faster, png is lossless.")
+@click.option("--quality", default=95, show_default=True, help="JPEG capture quality.")
+@click.option("--frames-dir", type=click.Path(path_type=Path), default=None, help="Also keep the captured frames here.")
 @_apply(history_opts)
-def render(repo: Path, output: Path, date_from: str | None, date_to: str | None, resolution: str, duration: str, fps: int, theme: str, crf: int, gpu: bool, frames_dir: Path | None, linear: bool, since: str | None, until: str | None) -> None:
+def render(repo: Path, output: Path, date_from: str | None, date_to: str | None, resolution: str, duration: str, fps: int, theme: str, crf: int, gpu: bool, capture: str, quality: int, frames_dir: Path | None, linear: bool, since: str | None, until: str | None) -> None:
     """Render REPO's history to an MP4 (headless, deterministic)."""
     from . import renderer
 
@@ -131,6 +133,8 @@ def render(repo: Path, output: Path, date_from: str | None, date_to: str | None,
             crf=crf,
             gpu=gpu,
             frames_dir=frames_dir,
+            capture=capture,
+            quality=quality,
             log=_log,
         )
     except renderer.RenderError as e:
