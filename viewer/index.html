@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>strata</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --fg: #ede9fe;
+        --dim: #8b7fb8;
+        --accent: #22d3ee;
+        --panel: rgba(10, 6, 24, 0.72);
+        --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+        --sans: "Inter", "Segoe UI", system-ui, sans-serif;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+      body { font-family: var(--sans); color: var(--fg); -webkit-font-smoothing: antialiased; }
+      #app { position: fixed; inset: 0; }
+      canvas { display: block; }
+      .hud { position: fixed; pointer-events: none; z-index: 2; }
+      .hud * { pointer-events: auto; }
+      #loading {
+        position: fixed; inset: 0; display: grid; place-items: center; z-index: 10;
+        font-family: var(--mono); font-size: 14px; color: var(--dim); letter-spacing: 0.08em; background: #06030f;
+        transition: opacity 0.6s ease;
+      }
+      #loading.hidden { opacity: 0; pointer-events: none; }
+      #loading .bar { width: 240px; height: 2px; background: rgba(255,255,255,0.08); margin-top: 14px; overflow: hidden; }
+      #loading .bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width 0.2s; }
+
+      #top { top: 28px; left: 32px; }
+      #repo { font-family: var(--mono); font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--dim); }
+      #date { font-size: 52px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; margin-top: 4px; font-variant-numeric: tabular-nums; }
+      #month { font-size: 18px; color: var(--dim); margin-top: 2px; font-weight: 500; }
+      #stats { font-family: var(--mono); font-size: 12px; color: var(--dim); margin-top: 14px; display: flex; gap: 18px; }
+      #stats b { color: var(--fg); font-weight: 500; }
+
+      #legend { top: 28px; right: 32px; display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+      #legend .author { display: flex; align-items: center; gap: 10px; font-size: 13px; opacity: 0.35; transition: opacity 0.4s; }
+      #legend .author.active { opacity: 1; }
+      #legend .author i { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 10px currentColor; background: currentColor; display: inline-block; }
+      #legend .author small { font-family: var(--mono); color: var(--dim); font-size: 11px; }
+
+      #ticker { left: 32px; bottom: 96px; display: flex; flex-direction: column-reverse; gap: 4px; max-width: 54vw; }
+      #ticker .line { font-family: var(--mono); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0; transition: opacity 0.25s; }
+      #ticker .line .who { color: var(--accent); }
+      #ticker .line .sha { color: var(--dim); }
+      #ticker .line:nth-child(1) { opacity: 1; font-size: 14px; }
+      #ticker .line:nth-child(2) { opacity: 0.65; }
+      #ticker .line:nth-child(3) { opacity: 0.4; }
+      #ticker .line:nth-child(4) { opacity: 0.22; }
+      #ticker .line:nth-child(5) { opacity: 0.1; }
+
+      #controls {
+        left: 50%; bottom: 24px; transform: translateX(-50%);
+        display: flex; align-items: center; gap: 14px;
+        background: var(--panel); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+        border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 10px 14px; min-width: min(900px, 92vw);
+      }
+      #controls button {
+        background: transparent; border: 1px solid rgba(255,255,255,0.12); color: var(--fg); border-radius: 8px;
+        width: 36px; height: 32px; cursor: pointer; font-size: 13px; font-family: var(--sans); display: grid; place-items: center;
+      }
+      #controls button:hover { border-color: var(--accent); }
+      #controls button.toggled { color: var(--accent); border-color: var(--accent); }
+      #controls .field { display: flex; flex-direction: column; gap: 3px; font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: 0.1em; text-transform: uppercase; }
+      #controls .field span b { color: var(--fg); font-weight: 500; }
+      #controls input[type="range"] { accent-color: var(--accent); height: 20px; margin: 0; }
+      #speed { width: 120px; }
+      #scrub { flex: 1; }
+      #controls select { background: transparent; color: var(--fg); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; height: 32px; padding: 0 8px; font-family: var(--sans); font-size: 13px; }
+      #controls select option { background: #111; }
+      .scrubwrap { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+      .scrubwrap .range { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--dim); }
+      body.render #controls, body.render #loading { display: none !important; }
+      #hint { bottom: 8px; left: 50%; transform: translateX(-50%); font-family: var(--mono); font-size: 10px; color: var(--dim); opacity: 0.6; letter-spacing: 0.08em; }
+      @media (max-width: 720px) {
+        #date { font-size: 34px; }
+        #legend { display: none; }
+        #ticker { max-width: 90vw; bottom: 110px; }
+        #controls { gap: 8px; padding: 8px; }
+        #speed { width: 70px; }
+        #controls select { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <div id="loading"><div><div id="loading-text">loading history</div><div class="bar"><i id="loading-bar"></i></div></div></div>
+    <div class="hud" id="top">
+      <div id="repo"></div>
+      <div id="date">—</div>
+      <div id="month"></div>
+      <div id="stats"></div>
+    </div>
+    <div class="hud" id="legend"></div>
+    <div class="hud" id="ticker"></div>
+    <div class="hud" id="controls">
+      <button id="play" title="play / pause (space)">▶</button>
+      <div class="field"><span>speed <b id="speed-label">30 d/s</b></span><input id="speed" type="range" min="0" max="1000" value="500" /></div>
+      <div class="scrubwrap"><input id="scrub" type="range" min="0" max="10000" value="0" /><div class="range"><span id="range-from"></span><span id="range-to"></span></div></div>
+      <select id="theme" title="theme"><option value="neon">neon</option><option value="crt">crt</option><option value="ember">ember</option></select>
+      <button id="auto-cam" class="toggled" title="auto camera (c)">◎</button>
+    </div>
+    <div class="hud" id="hint">drag to orbit · scroll to zoom · space to pause · ← → to scrub</div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

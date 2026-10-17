@@ -9,3 +9,4 @@ src/strata/static/
 .strata-cache/
 *.mp4
 *.egg-info/
+public/timeline.json
